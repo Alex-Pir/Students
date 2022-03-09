@@ -5,11 +5,11 @@ using System.Data.SqlClient;
 
 namespace Students.Repositories
 {
-    public abstract class BaseSQLRepository : ISQLRepository
+    public abstract class BaseRepository : IRepository
     {
-        private readonly string _connectionString;
+        protected readonly string _connectionString;
 
-        public BaseSQLRepository(string connectionString)
+        public BaseRepository(string connectionString)
         {
             _connectionString = connectionString;
         }
@@ -45,7 +45,16 @@ namespace Students.Repositories
                 connection.Open();
                 using (SqlCommand command = connection.CreateCommand())
                 {
-                    model.Id = InsertIntoTable(model);
+                    command.CommandText =
+                        @"insert into [Author]
+                            ([Name])
+                        values
+                            (@name)
+                        select SCOPE_IDENTITY()";
+
+                    command.Parameters.Add("@name", SqlDbType.NVarChar).Value = model.Name;
+
+                    model.Id = Convert.ToInt32(command.ExecuteScalar());
                 }
             }
         }
@@ -84,7 +93,15 @@ namespace Students.Repositories
                 connection.Open();
                 using (SqlCommand command = connection.CreateCommand())
                 {
-                    UpdateInTable(model);
+                    command.CommandText =
+                        $@"update [{GetTableName()}]
+                        set [Name] = @name
+                        where [Id] = @id";
+
+                    command.Parameters.Add("@name", SqlDbType.NVarChar).Value = model.Name;
+                    command.Parameters.Add("@id", SqlDbType.Int).Value = model.Id;
+
+                    command.ExecuteNonQuery();
                 }
             }
         }
@@ -108,8 +125,5 @@ namespace Students.Repositories
 
         public abstract string GetTableName();
         public abstract Model CreateModelObject(SqlDataReader reader);
-
-        public abstract int InsertIntoTable(Model model);
-        public abstract int UpdateInTable(Model model);
     }
 }

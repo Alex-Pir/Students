@@ -1,7 +1,9 @@
 ﻿namespace Students.Models
 {
-    public interface Model
+    public abstract class Model
     {
-        int Id { get; set; }
+        public int Id { get; set; }
+
+        public string Name { get; set; }
     }
 }

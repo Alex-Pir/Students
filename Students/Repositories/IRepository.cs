@@ -13,7 +13,6 @@ namespace Students.Repositories
         void DeleteById(int id);
         Model? GetById(int id);
         List<Model> GetAll();
-        void Update(Model author);
-        
+        void Update(Model model);
     }
 }
