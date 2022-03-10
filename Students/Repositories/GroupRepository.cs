@@ -15,7 +15,7 @@ namespace Students.Repositories
         {
         }
 
-        public override Model CreateModelObject(SqlDataReader reader)
+        protected override Model CreateModelObject(SqlDataReader reader)
         {
             return new Group()
             {
@@ -24,9 +24,9 @@ namespace Students.Repositories
             };
         }
 
-        public override string GetTableName()
+        protected override string GetTableName()
         {
-            return "Group";
+            return "Groups";
         }
 
         public List<Student> GetGroupStudents(int groupId)
@@ -53,8 +53,7 @@ namespace Students.Repositories
                             result.Add(new Student()
                             {
                                 Id = Convert.ToInt32(reader["ID"]),
-                                Name = Convert.ToString(reader["Name"]),
-                                GroupId = groupId
+                                Name = Convert.ToString(reader["Name"])
                             });
                         }
                     }
@@ -62,6 +61,40 @@ namespace Students.Repositories
             }
 
             return result;
+        }
+
+        protected override bool IsValidModel(Model model)
+        {
+            bool result = base.IsValidModel(model);
+
+            return result && (model is Group);
+        }
+
+        protected override int AddInTable(Model model, SqlCommand command)
+        {
+            command.CommandText =
+                        $@"insert into [{GetTableName()}]
+                            ([Name])
+                        values
+                            (@name)
+                        select SCOPE_IDENTITY()";
+
+            command.Parameters.Add("@name", SqlDbType.NVarChar).Value = model.Name;
+
+            return Convert.ToInt32(command.ExecuteScalar());
+        }
+
+        protected override void UpdateInTable(Model model, SqlCommand command)
+        {
+            command.CommandText =
+                        $@"update [{GetTableName()}]
+                        set [Name] = @name
+                        where [Id] = @id";
+
+            command.Parameters.Add("@name", SqlDbType.NVarChar).Value = model.Name;
+            command.Parameters.Add("@id", SqlDbType.Int).Value = model.Id;
+
+            command.ExecuteNonQuery();
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿
 using Students.Models;
+using Students.Repositories.Interfaces;
 using System.Data;
 using System.Data.SqlClient;
 
@@ -40,21 +41,17 @@ namespace Students.Repositories
 
         public void Add(Model model)
         {
+            if (!IsValidModel(model))
+            {
+                throw new Exception("Model is not valid!");
+            }
+
             using (var connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
                 using (SqlCommand command = connection.CreateCommand())
                 {
-                    command.CommandText =
-                        @"insert into [Author]
-                            ([Name])
-                        values
-                            (@name)
-                        select SCOPE_IDENTITY()";
-
-                    command.Parameters.Add("@name", SqlDbType.NVarChar).Value = model.Name;
-
-                    model.Id = Convert.ToInt32(command.ExecuteScalar());
+                    model.Id = AddInTable(model, command);
                 }
             }
         }
@@ -86,22 +83,19 @@ namespace Students.Repositories
             return null;
         }
 
-        public void Update(Model model)
+        public virtual void Update(Model model)
         {
+            if (!IsValidModel(model))
+            {
+                throw new Exception("Model is not valid!");
+            }
+
             using (var connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
                 using (SqlCommand command = connection.CreateCommand())
                 {
-                    command.CommandText =
-                        $@"update [{GetTableName()}]
-                        set [Name] = @name
-                        where [Id] = @id";
-
-                    command.Parameters.Add("@name", SqlDbType.NVarChar).Value = model.Name;
-                    command.Parameters.Add("@id", SqlDbType.Int).Value = model.Id;
-
-                    command.ExecuteNonQuery();
+                    UpdateInTable(model, command);
                 }
             }
         }
@@ -123,7 +117,15 @@ namespace Students.Repositories
             }
         }
 
-        public abstract string GetTableName();
-        public abstract Model CreateModelObject(SqlDataReader reader);
+        protected virtual bool IsValidModel(Model model)
+        {
+            return model.Name != null && model.Name.Trim().Length != 0;
+        }
+
+
+        protected abstract int AddInTable(Model model, SqlCommand command);
+        protected abstract void UpdateInTable(Model model, SqlCommand command);
+        protected abstract string GetTableName();
+        protected abstract Model CreateModelObject(SqlDataReader reader);
     }
 }

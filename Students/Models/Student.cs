@@ -2,6 +2,6 @@
 {
     public class Student : Model
     {
-        public int GroupId { get; set; }
+        public int Age { get; set; }
     }
 }

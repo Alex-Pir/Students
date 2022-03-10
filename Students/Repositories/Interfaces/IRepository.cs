@@ -1,13 +1,8 @@
 ﻿using Students.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Students.Repositories
+namespace Students.Repositories.Interfaces
 {
-    public interface ISQLRepository
+    public interface IRepository
     {
         void Add(Model author);
         void DeleteById(int id);
