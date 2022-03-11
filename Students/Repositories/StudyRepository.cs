@@ -22,7 +22,7 @@ namespace Students.Repositories
                 using (SqlCommand command = connection.CreateCommand())
                 {
                     command.CommandText =
-                        @"select * from [Study]
+                        @"select * from [Studies]
                             where StudentId = @studentId AND GroupId = @groupId";
 
                     command.Parameters.Add("@studentId", SqlDbType.NVarChar).Value = studentId;
@@ -32,15 +32,15 @@ namespace Students.Repositories
                     {
                         if (reader.Read())
                         {
-                            throw new Exception("Student already in group");
+                            throw new Exception("Студент уже в группе");
                         }
                     }
 
                     command.CommandText =
-                        @"insert into [Study]
+                        @"insert into [Studies]
                             ([StudentId], [GroupId])
                         values
-                            (@name)";
+                            (@studentId, @groupId)";
 
                     command.ExecuteScalar();
                 }
@@ -57,10 +57,11 @@ namespace Students.Repositories
                 using (SqlCommand command = connection.CreateCommand())
                 {
                     command.CommandText =
-                        @"select Student.Name, Student.Id, Student.Age from [Student]
-                            join [Study] on Study.GroupId = @groupId";
+                        @"select Student.Name as sName, Student.Id as sId, Student.Age as sAge from [Studies]
+                            join [Student] on StudentId = Student.Id
+                            where GroupId = @groupId";
 
-                    command.Parameters.Add("@groupId", SqlDbType.NVarChar).Value = groupId;
+                    command.Parameters.Add("@groupId", SqlDbType.Int).Value = groupId;
 
                     using (var reader = command.ExecuteReader())
                     {
@@ -68,10 +69,38 @@ namespace Students.Repositories
                         {
                             result.Add(new Student()
                             {
-                                Id = Convert.ToInt32(reader["Student.Id"]),
-                                Name = Convert.ToString(reader["Student.Name"]),
-                                Age = Convert.ToInt32(reader["Student.Age"])
+                                Id = Convert.ToInt32(reader["sId"]),
+                                Name = Convert.ToString(reader["sName"]),
+                                Age = Convert.ToInt32(reader["sAge"])
                             });
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public List<string> GetCountStudentsInGroups()
+        {
+            List<string> result = new List<string>();
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = connection.CreateCommand())
+                {
+                    command.CommandText =
+                        @"select Groups.Name as gName, COUNT(StudentId) as countId from [Studies]
+                            join [Groups] on GroupId = Groups.Id
+                            where GroupId in (select Id from [Groups])
+                            group by Groups.Name";
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            result.Add($"{reader["gName"]} | {reader["countId"]}");
                         }
                     }
                 }

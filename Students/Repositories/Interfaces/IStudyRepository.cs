@@ -6,5 +6,6 @@ namespace Students.Repositories.Interfaces
     {
         public void AddStudentInGroup(int studentId, int groupId);
         public List<Student> GetAllStudentsGroup(int groupId);
+        public List<string> GetCountStudentsInGroups();
     }
 }

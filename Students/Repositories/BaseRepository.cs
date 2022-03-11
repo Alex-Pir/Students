@@ -43,7 +43,7 @@ namespace Students.Repositories
         {
             if (!IsValidModel(model))
             {
-                throw new Exception("Model is not valid!");
+                throw new Exception("Проверьте корректность добавляемых данных");
             }
 
             using (var connection = new SqlConnection(_connectionString))
@@ -87,7 +87,7 @@ namespace Students.Repositories
         {
             if (!IsValidModel(model))
             {
-                throw new Exception("Model is not valid!");
+                throw new Exception("Проверьте корректность обновляемых данных");
             }
 
             using (var connection = new SqlConnection(_connectionString))
