@@ -1,0 +1,16 @@
+create table Student(
+	Id int identity(1,1) constraint PK_Student primary key,
+	Name nvarchar(100),
+	Age int
+)
+
+create table Groups(
+	Id int identity(1,1) constraint PK_Groups primary key,
+	Name nvarchar(100)
+)
+
+create table Studies(
+	Id int identity(1,1) constraint PK_Studies primary key,
+	StudentId int constraint FK_Studies_Student references Student(Id),
+	GroupId int constraint FK_Studies_Groups references Groups(Id)
+)
