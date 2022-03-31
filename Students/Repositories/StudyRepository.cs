@@ -14,7 +14,7 @@ namespace Students.Repositories
             _connectionString = connectionString;
         }
 
-        public void AddStudentInGroup(int studentId, int groupId)
+        public void AddStudentInGroup(Study study)
         {
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -25,8 +25,8 @@ namespace Students.Repositories
                         @"select * from [Studies]
                             where StudentId = @studentId AND GroupId = @groupId";
 
-                    command.Parameters.Add("@studentId", SqlDbType.NVarChar).Value = studentId;
-                    command.Parameters.Add("@groupId", SqlDbType.NVarChar).Value = groupId;
+                    command.Parameters.Add("@studentId", SqlDbType.NVarChar).Value = study.StudentId;
+                    command.Parameters.Add("@groupId", SqlDbType.NVarChar).Value = study.GroupId;
 
                     using (var reader = command.ExecuteReader())
                     {

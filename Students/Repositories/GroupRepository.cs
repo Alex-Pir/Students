@@ -29,40 +29,6 @@ namespace Students.Repositories
             return "Groups";
         }
 
-        public List<Student> GetGroupStudents(int groupId)
-        {
-            if (groupId <= 0)
-            {
-                throw new ArgumentException("Id can not be negative or 0");
-            }
-
-            var result = new List<Student>();
-
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                connection.Open();
-                using (SqlCommand command = connection.CreateCommand())
-                {
-                    command.CommandText = $"select * from student where [Group]=@id";
-                    command.Parameters.Add("@id", SqlDbType.Int).Value = groupId;
-
-                    using (var reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            result.Add(new Student()
-                            {
-                                Id = Convert.ToInt32(reader["ID"]),
-                                Name = Convert.ToString(reader["Name"])
-                            });
-                        }
-                    }
-                }
-            }
-
-            return result;
-        }
-
         protected override bool IsValidModel(Model model)
         {
             bool result = base.IsValidModel(model);

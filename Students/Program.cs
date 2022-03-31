@@ -1,11 +1,14 @@
 ﻿using Students.Models;
 using Students.Repositories;
+using System.Text.RegularExpressions;
 
 namespace Students
 {
     public class Program
     {
         private const string DB_CONNECTION = @"Data Source=LAPTOP-H58NE3UN;Initial Catalog=test_database;Pooling=true;Integrated Security=SSPI";
+
+        private const string STRING_REGEX = @"\s+";
 
         public static void Main(string[] args)
         {
@@ -46,10 +49,17 @@ namespace Students
                     else if (command == "add-student")
                     {
                         Console.WriteLine("Введите имя студента");
-                        string name = Console.ReadLine();
+
+                        string name = ReadStringByConsole();
+
+                        int age;
 
                         Console.WriteLine("Введите возраст студента");
-                        int age = Convert.ToInt32(Console.ReadLine());
+
+                        if (!int.TryParse(Console.ReadLine(), out age) || age <= 0)
+                        {
+                            throw new Exception("Возраст должен быть положительным числом");
+                        }
 
                         studentRepository.Add(new Student
                         {
@@ -62,7 +72,7 @@ namespace Students
                     {
                         List<Model> groups = groupRepository.GetAll();
 
-                        foreach (Group group in groups)
+                        foreach (Models.Group group in groups)
                         {
                             Console.WriteLine($"Id: {group.Id}, Name: {group.Name}");
                         }
@@ -75,9 +85,9 @@ namespace Students
                     else if (command == "add-group")
                     {
                         Console.WriteLine("Введите название группы");
-                        string name = Console.ReadLine();
+                        string name = ReadStringByConsole();
 
-                        groupRepository.Add(new Group
+                        groupRepository.Add(new Models.Group
                         {
                             Name = name
                         });
@@ -87,7 +97,13 @@ namespace Students
                     else if (command == "get-group-students")
                     {
                         Console.WriteLine("Введите ID группы");
-                        int id = Convert.ToInt32(Console.ReadLine());
+
+                        int id;
+
+                        if (!int.TryParse(Console.ReadLine(), out id))
+                        {
+                            throw new Exception("ID должен быть числом");
+                        }
 
                         CheckId(id);
 
@@ -106,16 +122,43 @@ namespace Students
                     else if (command == "add-to-group")
                     {
                         Console.WriteLine("Введите ID группы");
-                        int groupId = Convert.ToInt32(Console.ReadLine());
+                        
+                        int groupId;
+                        int studentId;
+
+                        if (!int.TryParse(Console.ReadLine(), out groupId))
+                        {
+                            throw new Exception("ID группы должен быть числом");
+                        }
 
                         CheckId(groupId);
 
+                        if (!groupRepository.ElementExists(groupId))
+                        {
+                            throw new Exception("Группы с таким идентификатором не существует");
+                        }
+
                         Console.WriteLine("Введите ID студента");
-                        int studentId = Convert.ToInt32(Console.ReadLine());
+
+                        if (!int.TryParse(Console.ReadLine(), out studentId))
+                        {
+                            throw new Exception("ID студента должен быть числом");
+                        }
 
                         CheckId(studentId);
 
-                        studyRepository.AddStudentInGroup(studentId, groupId);
+                        if (!studentRepository.ElementExists(studentId))
+                        {
+                            throw new Exception("Студента с таким идентификатором не существует");
+                        }
+
+                        studyRepository.AddStudentInGroup(
+                            new Study()
+                            {
+                                StudentId = studentId,
+                                GroupId = groupId
+                            }
+                        );
                         Console.WriteLine("Успешно добавлено");
                     }
                     else if (command == "report")
@@ -152,8 +195,15 @@ namespace Students
         {
             if (id <= 0)
             {
-                throw new ArgumentException("ID должен быть положительным числом");
+                throw new ArgumentException("ID должен быть положительным целым числом");
             }
+        }
+
+        protected static string ReadStringByConsole()
+        {
+            return new Regex(STRING_REGEX)
+                .Replace(Console.ReadLine(), @" ")
+                .Trim();
         }
     }
 }

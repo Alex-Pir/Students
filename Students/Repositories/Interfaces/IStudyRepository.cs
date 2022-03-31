@@ -4,7 +4,7 @@ namespace Students.Repositories.Interfaces
 {
     public interface IStudyRepository
     {
-        public void AddStudentInGroup(int studentId, int groupId);
+        public void AddStudentInGroup(Study study);
         public List<Student> GetAllStudentsGroup(int groupId);
         public List<string> GetCountStudentsInGroups();
     }

@@ -15,6 +15,11 @@ namespace Students.Repositories
             _connectionString = connectionString;
         }
 
+        public bool ElementExists(int id)
+        {
+            return GetById(id) != null;
+        }
+
         public List<Model> GetAll()
         {
             var result = new List<Model>();
