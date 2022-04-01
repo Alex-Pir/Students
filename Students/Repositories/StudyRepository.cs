@@ -22,7 +22,7 @@ namespace Students.Repositories
                 using (SqlCommand command = connection.CreateCommand())
                 {
                     command.CommandText =
-                        @"select * from [Studies]
+                        @"select * from [UniversityStudy]
                             where StudentId = @studentId AND GroupId = @groupId";
 
                     command.Parameters.Add("@studentId", SqlDbType.NVarChar).Value = study.StudentId;
@@ -37,7 +37,7 @@ namespace Students.Repositories
                     }
 
                     command.CommandText =
-                        @"insert into [Studies]
+                        @"insert into [UniversityStudy]
                             ([StudentId], [GroupId])
                         values
                             (@studentId, @groupId)";
@@ -57,8 +57,8 @@ namespace Students.Repositories
                 using (SqlCommand command = connection.CreateCommand())
                 {
                     command.CommandText =
-                        @"select Student.Name as sName, Student.Id as sId, Student.Age as sAge from [Studies]
-                            join [Student] on StudentId = Student.Id
+                        @"select UniversityStudent.Name as sName, UniversityStudent.Id as sId, UniversityStudent.Age as sAge from [UniversityStudy]
+                            join [UniversityStudent] on StudentId = UniversityStudent.Id
                             where GroupId = @groupId";
 
                     command.Parameters.Add("@groupId", SqlDbType.Int).Value = groupId;
@@ -81,9 +81,9 @@ namespace Students.Repositories
             return result;
         }
 
-        public List<string> GetCountStudentsInGroups()
+        public List<Group> GetCountStudentsInGroups()
         {
-            List<string> result = new List<string>();
+            List<Group> result = new List<Group>();
 
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -91,16 +91,21 @@ namespace Students.Repositories
                 using (SqlCommand command = connection.CreateCommand())
                 {
                     command.CommandText =
-                        @"select Groups.Name as gName, COUNT(StudentId) as countId from [Studies]
-                            join [Groups] on GroupId = Groups.Id
-                            where GroupId in (select Id from [Groups])
-                            group by Groups.Name";
+                        @"select UniversityGroup.Name as gName, UniversityGroup.Id as gId, COUNT(StudentId) as countId from [UniversityStudy]
+                            join [UniversityGroup] on GroupId = UniversityGroup.Id
+                            where GroupId in (select Id from [UniversityGroup])
+                            group by UniversityGroup.Id, UniversityGroup.Name";
 
                     using (var reader = command.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            result.Add($"{reader["gName"]} | {reader["countId"]}");
+                            result.Add(new Group()
+                            {
+                                Id = Convert.ToInt32(reader["gId"]),
+                                Name = Convert.ToString(reader["gName"]),
+                                StudentsCount = Convert.ToInt32(reader["countId"])
+                            });
                         }
                     }
                 }

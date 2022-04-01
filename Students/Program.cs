@@ -164,14 +164,14 @@ namespace Students
                     else if (command == "report")
                     {
                         
-                        List<string> reports = studyRepository.GetCountStudentsInGroups();
+                        List<Models.Group> groups = studyRepository.GetCountStudentsInGroups();
 
-                        foreach (string report in reports)
+                        foreach (Models.Group group in groups)
                         {
-                            Console.WriteLine(report);
+                            Console.WriteLine($"{group.Name} | {group.StudentsCount}");
                         }
 
-                        if (reports.Count == 0)
+                        if (groups.Count == 0)
                         {
                             Console.WriteLine("В группах нет студентов");
                         }

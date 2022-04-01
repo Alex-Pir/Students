@@ -2,5 +2,6 @@
 {
     public class Group : Model
     {
+        public int? StudentsCount { get; set; } 
     }
 }

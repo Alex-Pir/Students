@@ -26,7 +26,7 @@ namespace Students.Repositories
 
         protected override string GetTableName()
         {
-            return "Groups";
+            return "UniversityGroup";
         }
 
         protected override bool IsValidModel(Model model)

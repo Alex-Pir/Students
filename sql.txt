@@ -1,16 +1,16 @@
-create table Student(
-	Id int identity(1,1) constraint PK_Student primary key,
+create table UniversityStudent(
+	Id int identity(1,1) constraint PK_UniversityStudent primary key,
 	Name nvarchar(100),
 	Age int
 )
 
-create table Groups(
-	Id int identity(1,1) constraint PK_Groups primary key,
+create table UniversityGroup(
+	Id int identity(1,1) constraint PK_UniversityGroup primary key,
 	Name nvarchar(100)
 )
 
-create table Studies(
-	Id int identity(1,1) constraint PK_Studies primary key,
-	StudentId int constraint FK_Studies_Student references Student(Id),
-	GroupId int constraint FK_Studies_Groups references Groups(Id)
+create table UniversityStudy(
+	Id int identity(1,1) constraint PK_UniversityStudy primary key,
+	StudentId int constraint FK_UniversityStudy_UniversityStudent references UniversityStudent(Id),
+	GroupId int constraint FK_UniversityStudy_UniversityGroup references UniversityGroup(Id)
 )
